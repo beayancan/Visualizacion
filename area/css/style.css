@@ -1,0 +1,23 @@
+path.line {
+    fill: none;
+    stroke: #5882FA;
+    stroke-width: 1.5px;
+}
+
+path.area {
+    fill: #D8D8D8;
+}
+
+.x.axis line {
+    stroke: #FFFFFF;
+}
+
+.x.axis path {
+    display: none;
+}
+
+.y.axis line,
+.y.axis path {
+    fill: none;
+    stroke: #000000;
+}
