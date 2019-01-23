@@ -40,8 +40,27 @@ d3.json(gist, function (error, data) { // leemos el documento desde gist
         .data(partition(root).descendants()) //agregamos los datos
         .enter().append("path") // lo agregamos a la visualizacion
         .attr("d", arc) // completamos el área segun lo que nos entregue arc.
+        .on("click", click)
         .style("fill", d => color((d.children ? d : d.parent).data.name)) // diferenciamos en caso de ser nodo u hoja
 
         /*partition() permite completar los espacios
         descendats() va recorriendo los nodos, desde el actual pasando por sus hojas*/
     });
+
+// generamos una funcion que adapte la visualizacion al subconjunto escojido
+// siendo el area clickeada, el conjunto más grande
+function click(d) { // funcion con la que modelaremos el click
+    svg.transition() // trasnsicion de la visualizacion
+       .duration(1250)
+       .tween("scale", function () { // atributo de la transicion, asingando cada elemento con su funcion
+            var xd = d3.interpolate(xScale.domain(), [d.x0, d.x1]), // adaptamos las escalas según el elemento
+                yd = d3.interpolate(yScale.domain(), [d.y0, 1]),
+                yr = d3.interpolate(yScale.range(), [d.y0 ? 20 : 0, radio]);
+            return function (t) { // debe retornar una funcion
+                xScale.domain(xd(t));
+                yScale.domain(yd(t)).range(yr(t)); // la funcion retorna el nuevo dominio de acuerdo a las escalas
+            };
+       })
+       .selectAll("path")
+       .attrTween("d", d => function () { return arc(d); }); // pasamos al area según el formato de arco
+}
