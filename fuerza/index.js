@@ -6,7 +6,8 @@ var margin = {top: 40, right: 0, bottom: 70, left: 100}, // dimensiones
     radio = 10, // variables
     cantidad = 150, // cantidad de circulos
     fuerza = -15, // fuerza de atraccion
-    velocidad = 2; // velocidad de generacion de clusters
+    velocidad = 2,
+    desorden = 100; // velocidad de generacion de clusters
 
 var color = d3.scale.category10(); // generamos escala de colores
 
@@ -25,7 +26,8 @@ var force = d3.layout.force() // generamos el formato para la fuerza
 var svg = d3.select("#chart") // el svg necesario para añadir los elementos
             .append("svg")
             .attr("width", width)
-            .attr("height", height);
+            .attr("height", height)
+            .on("mousedown", desordenar); // permite desordenar los circulos cuando se hace click sobre el svg pero no en un circulo
 
 var node = svg.selectAll("circle") // agregaremos los nodos
               .data(nodes)
@@ -36,7 +38,9 @@ var node = svg.selectAll("circle") // agregaremos los nodos
               // dado que crearemos 4 clusters, los colores los separaremos de igual forma
               // por lo que al entregar el color, se añade un (i & 3) y así controlamos la homogeneidad
               .style("fill", function (d, i) { return color(i & 3); }) // le entregamos color
-              .style("stroke", "black"); // borde
+              .style("stroke", "black") // borde
+              .call(force.drag) // podremos trasladar el circulo
+              .on("mousedown", () => d3.event.stopPropagation()); // permite arrastrar los circulos
 
 function tick(evento) { // funcion que nos permitirá posicionarlos en los cuadrantes
     var v = velocidad * evento.alpha; // definimos su velocidad
@@ -47,4 +51,12 @@ function tick(evento) { // funcion que nos permitirá posicionarlos en los cuadr
 
     node.attr("cx", d => d.x) // lo posicionamos
         .attr("cy", d => d.y);
+}
+
+function desordenar() { // funcion que nos permite desordenar los circulos cuando hacemos click en el svg
+    nodes.forEach(function (nodo, i) { // a cada nodo
+        nodo.x += (Math.random() - .5) * desorden; // lo trasladaremos una cantidad aletoria desde su posicion actual
+        nodo.y += (Math.random() - .5) * desorden;
+    });
+    force.resume(); // aplicamos la accion
 }
