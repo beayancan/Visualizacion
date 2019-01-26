@@ -55,7 +55,48 @@ d3.csv("./data/circulos.csv").then(function (data) { // cargamos los datos de fo
                       .enter().append("g")// añadimos los datos
                       .attr("class", "circulo")
                       .attr("transform", // los colocamos en su posicion
-                      d => "translate(" + xScale(d.x) + "," + yScale(d.y) + ")");
+                      d => "translate(" + xScale(d.x) + "," + yScale(d.y) + ")")
+                      // generaremos animaciones para destacar el circulo
+                      // sobre el cual se tiene el mouse
+                      .on("mouseenter", function (d) { // mouse sobre circulo
+                          d3.select(this) // seleccionamos el dato actual
+                            .append("text") // le añadimos un label
+                            .attr("dx", 10)
+                            .attr("dy", -20)
+                            .text("(" + d.x + ", " + d.y + ")"); // de su posición
+
+                          d3.selectAll("circle") // hacemos transparentes los demás circulos
+                            .style("fill-opacity", .4);
+
+                          d3.select(this) // pero destacamos el actual agrandando su radio y siendo opaco
+                            .select("circle")
+                            .transition() // realizamos la transicion
+                            .duration(1250)
+                            .ease(d3.easeElastic) // agregamos un comportamiento elastico al circulo
+                            .attr("r", radio * 2)
+                            .style("fill-opacity", 1);
+                      })
+                      .on("mouseleave", function (d) { // animacion cuando aparta el mouse
+
+                          d3.select(this) // selecciona el texo del circulo que dejó
+                            .select("text") // quitamos el texto
+                            .style("opacity", 0)
+                            .transition()
+                            .remove();
+
+                          d3.select(this) // seleccionamos el circulo
+                            .select("circle")
+                            .transition()
+                            .duration(1250)
+                            .ease(d3.easeElastic) // comportamiento elastico
+                            .attr("r", 10); // le retornamos su tamaño original
+
+                          d3.selectAll("circle") // volvemos opacos los circulos nuevamente
+                            .style("fill-opacity", 1);
+                      });
+
+    /* las funciones deben ir dentro de las definiciones, ya que utilizamos this para
+    poder seleccionar los elementos, ie, no se puede definir una funcion para su manejo*/
 
     circulos.append("circle") // los agregamos al chart como circulos
             .attr("r", radio)
