@@ -19,7 +19,7 @@ var xScale = d3.scaleBand() // generamos escalas de las barras en v5
 var yScale = d3.scaleLinear() // escala linear en v5 para el eje y
                .rangeRound([height, 0]);
 
-d3.csv("carreras.csv").then(data => { // tomamos los datos del csv de forma asincrona
+d3.csv("./data/carreras.csv").then(data => { // tomamos los datos del csv de forma asincrona
 
    xScale.domain(data.map(d => d.Run)); // les entregamos el dominio a las escalas según los datos
    yScale.domain([0, d3.max(data, d => +d.Speed)]).nice();
